@@ -1,3 +1,4 @@
+"use strict"
 /** Search Shows
  *    - given a search term, search for tv shows that
  *      match that query.  The function is async show it
@@ -16,8 +17,19 @@
 
 async function searchShows(query) {
   // TODO: Make an ajax request to the searchShows api.  Remove hard coded data.
+  let response = await axios.get(`http://api.tvmaze.com/search/shows?q=${query}`);
+  let shows = [];
+  for (let i = 0; i < response.data.length; i++) {
+    let obj = {};
+    obj["id"] = response.data[i].show.id;
+    obj["name"] = response.data[i].show.name;
+    obj["summary"] = response.data[i].show.summary;
+    obj["image"] = response.data[i].show.image?.original;
+    shows.push(obj);
+  }
+  return shows;
 
-  return [
+  /*return [
     {
       id: 1767,
       name: "The Bletchley Circle",
@@ -33,7 +45,7 @@ async function searchShows(query) {
            the culprit to justice with her former friends.</p>`,
       image: "http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg"
     }
-  ]
+  ]*/
 }
 
 
@@ -45,14 +57,18 @@ async function searchShows(query) {
 function populateShows(shows) {
   const $showsList = $("#shows-list");
   $showsList.empty();
+  const URL = "https://tinyurl.com/tv-missing";
 
   for (let show of shows) {
+    console.log("image : ", show.image);
+    show.image = show.image === undefined ? URL : show.image;
     let $item = $(
       `<div class="col-md-6 col-lg-3 Show" data-show-id="${show.id}">
          <div class="card" data-show-id="${show.id}">
            <div class="card-body">
              <h5 class="card-title">${show.name}</h5>
              <p class="card-text">${show.summary}</p>
+             <img class="card-img-top" src="${show.image}">
            </div>
          </div>
        </div>
